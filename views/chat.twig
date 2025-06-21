@@ -1,0 +1,61 @@
+<body>
+  <input id="pseudo" placeholder="Enter your name" />
+  <button onclick="setPseudo()">Join Chat</button>
+
+  <div id="chat" style="display:none;">
+    <input id="x" type="text" placeholder="Type a message" onkeyup="typing()" />
+    <button onclick="send()">Send</button>
+    <div id="messages"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let userPseudo = "";
+
+    function setPseudo() {
+      const pseudoInput = document.getElementById('pseudo');
+      if (pseudoInput.value.trim() === "") return;
+      userPseudo = pseudoInput.value.trim();
+      socket.emit("setPseudo", userPseudo);
+
+      // show chat
+      document.getElementById("chat").style.display = "block";
+      pseudoInput.style.display = "none";
+      pseudoInput.nextElementSibling.style.display = "none";
+    }
+
+    socket.on("notification", (text) => {
+      const div = document.createElement("div");
+      div.innerText = text;
+      div.style.color = "gray";
+      document.getElementById("messages").appendChild(div);
+    });
+
+    socket.on("msg", (msg) => {
+      const div = document.createElement("div");
+      div.innerText = msg;
+      document.getElementById("messages").appendChild(div);
+    });
+
+    function typing() {
+      socket.emit('typing');
+    }
+
+    socket.on("typing", (msg) => {
+      const typingDiv = document.getElementById('typingNotification') || document.createElement("div");
+      typingDiv.id = 'typingNotification';
+      typingDiv.style.color = "gray";
+      typingDiv.innerText = msg;
+      document.body.appendChild(typingDiv);
+    });
+
+    function send() {
+      const input = document.getElementById('x');
+      if (input.value.trim() !== "") {
+        socket.emit("msg", input.value);
+        input.value = "";
+      }
+    }
+  </script>
+</body>

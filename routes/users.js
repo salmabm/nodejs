@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const UserController = require('../controller/UserController');
 const User    = require('../model/user'); 
+const validation = require('../midll/validate'); // Assuming you have a validation middleware
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
@@ -15,7 +16,7 @@ router.get('/getById/:id', UserController.getById);
 
 router.get('/getAll', UserController.getAll);
 
-router.post('/create', UserController.create);
+router.post('/create', validation, UserController.create);
 
 //1ere fonction : getByid 
 //juste l'appel de la fonction getById qu'on doit developper dans le controller
